@@ -9,10 +9,23 @@ import reportWebVitals from './reportWebVitals'
 import App from './App'
 import { AuthForm } from './auth'
 
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    loader: async () => {
+      return fetch(
+        'http://127.0.0.1:5000/auth/user',
+        {
+          mode: 'cors',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+    )
+    },
   },
   {
     path: "/login",

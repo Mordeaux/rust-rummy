@@ -13,13 +13,13 @@ const AuthForm = () => {
 
   const onSubmit = e => {
     e.preventDefault()
-    const response = fetch(
+    fetch(
       `http://127.0.0.1:5000/auth${pathname}`,
       {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -29,9 +29,8 @@ const AuthForm = () => {
       },
     )
       .then(response => response.json())
-      .then(console.log)
-
   }
+
   return (
     <Form onSubmit={onSubmit}>
       <Stack direction="vertical" gap={3}>

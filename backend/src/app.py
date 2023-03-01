@@ -13,6 +13,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'temporary key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+    app.config['CORS_SUPPORTS_CREDENTIALS'] = True
 
     # Register Blueprints
     app.register_blueprint(auth)
@@ -27,6 +28,7 @@ def create_app():
     from .auth.user import User
     login_manager = LoginManager()
     login_manager.init_app(app)
+
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))

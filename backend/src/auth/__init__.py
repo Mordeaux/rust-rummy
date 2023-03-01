@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user
+from flask_login import login_user, current_user
 
 from ..app import db
 from .user import User
@@ -21,9 +21,7 @@ def login():
         })
     login_user(user)
 
-    return jsonify({
-        'success': True,
-    })
+    return user.jsonify()
 
 @auth.route('/signup', methods=['POST'])
 def signup():
@@ -44,7 +42,10 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({
-        'success': True,
-        'message': 'Signed Up successfully',
-    })
+    return new_user.jsonify()
+
+@auth.route('/user')
+def get_user():
+    user = User.query.get(current_user.get_id())
+    print(user.username)
+    return user.jsonify()
