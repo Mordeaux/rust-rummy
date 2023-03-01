@@ -1,9 +1,1 @@
-import authFormFactory from './authFormFactory'
-
-const LoginForm = authFormFactory('login')
-const SignupForm = authFormFactory('signup')
-
-export {
-  LoginForm,
-  SignupForm,
-}
+export { default as AuthForm } from './AuthForm'

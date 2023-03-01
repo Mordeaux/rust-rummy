@@ -7,7 +7,7 @@ import {
 import './index.css'
 import reportWebVitals from './reportWebVitals'
 import App from './App'
-import { LoginForm, SignupForm } from './auth'
+import { AuthForm } from './auth'
 
 const router = createBrowserRouter([
   {
@@ -16,11 +16,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <LoginForm />,
+    element: <AuthForm />,
   },
   {
     path: "/signup",
-    element: <SignupForm />,
+    element: <AuthForm />,
   },
 ])
 

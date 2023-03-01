@@ -3,16 +3,18 @@ import Col from 'react-bootstrap/Col'
 import Stack from 'react-bootstrap/Stack'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import { useLocation } from 'react-router-dom'
 
-const authFormFactory = (option) => () => {
+const AuthForm = () => {
   const { Label } = Form
   const [ username, setUsername ] = useState('')
   const [ password, setPassword ] = useState('')
+  const { pathname } = useLocation()
 
   const onSubmit = e => {
     e.preventDefault()
     const response = fetch(
-      `http://127.0.0.1:5000/auth/${option}`,
+      `http://127.0.0.1:5000/auth${pathname}`,
       {
         method: 'POST',
         mode: 'cors',
@@ -57,7 +59,7 @@ const authFormFactory = (option) => () => {
         </Col>
         <Col>
           <Button variant="primary" type="submit">
-            { option == 'signup' ?
+            { pathname === '/signup' ?
                 'Sign Up' :
                 'Login'
             }
@@ -69,4 +71,4 @@ const authFormFactory = (option) => () => {
   )
 }
 
-export default authFormFactory
+export default AuthForm
