@@ -4,6 +4,7 @@ import Stack from 'react-bootstrap/Stack'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { useLocation } from 'react-router-dom'
+import { postJson } from '../api'
 
 const AuthForm = () => {
   const { Label } = Form
@@ -13,21 +14,7 @@ const AuthForm = () => {
 
   const onSubmit = e => {
     e.preventDefault()
-    fetch(
-      `http://127.0.0.1:5000/auth${pathname}`,
-      {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow',
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify({ username, password }),
-      },
-    )
+    postJson(`/auth${pathname}`, { username, password })
       .then(response => response.json())
   }
 
