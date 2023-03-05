@@ -9,7 +9,6 @@ const settings = {
   cache: 'no-cache',
   referrerPolicy: 'no-referrer',
   redirect: 'follow',
-
 }
 
 export const get = path => {
@@ -23,6 +22,8 @@ export const get = path => {
 }
 
 export const getCurrentUser = get.bind(undefined, '/auth/user')
+
+export const getGames = get.bind(undefined, '/games/')
 
 export const postJson = (path, data) => {
   return fetch(
@@ -40,3 +41,5 @@ export const login = (pathname, username, password) => {
     return postJson(`/auth${pathname}`, { username, password })
       .then(response => response.json())
 }
+
+export const logout = get.bind(undefined, '/auth/logout')

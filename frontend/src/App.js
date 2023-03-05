@@ -1,7 +1,8 @@
 import Row from 'react-bootstrap/Row'
 import Container from 'react-bootstrap/Container'
 import { Link, useLoaderData } from 'react-router-dom'
-import { get } from './api'
+import { logout } from './api'
+import { GameList } from './game'
 
 
 const Unauthenticated = () => {
@@ -14,9 +15,19 @@ const Unauthenticated = () => {
   )
 }
 
+const LandingPage = () => {
+  const { user: { username }, games } = useLoaderData()
+  return (
+    <>
+      <h1>Hello {username}</h1>
+      <span onClick={logout}>logout</span>
+      <GameList games={games}/>
+    </>
+  )
+}
+
 const App = () => {
-  const { username } = useLoaderData()
-  const logout = () => {}
+  const { user: { username } } = useLoaderData()
 
   return (
     <div className="rummy-app">
@@ -24,10 +35,7 @@ const App = () => {
         <Row>
           {
             username ?
-              <>
-                <h1>hello {username}</h1>
-                <a onClick={get.bind(undefined, '/auth/logout')}>logout</a>
-              </>
+              <LandingPage />
               : <Unauthenticated />
           }
         </Row>

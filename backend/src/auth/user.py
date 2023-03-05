@@ -32,5 +32,4 @@ class User(UserMixin, db.Model):
         return {
             "userId": self.id,
             "username": self.username,
-            "games": [game.id for game in self.games],
         }

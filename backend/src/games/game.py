@@ -62,7 +62,8 @@ class Game(db.Model):
 
     def as_dict(self):
         return {
-            "users": [user.id for user in self.users],
+            "id": self.id,
+            "users": [user.as_dict() for user in self.users],
             "name": self.name,
         }
 

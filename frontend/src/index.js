@@ -8,14 +8,15 @@ import './index.css'
 import reportWebVitals from './reportWebVitals'
 import App from './App'
 import { AuthForm } from './auth'
-import { getCurrentUser } from './api'
-
+import { getCurrentUser, getGames } from './api'
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    loader: getCurrentUser,
+    loader: async () => Promise.all([getCurrentUser(), getGames()])
+        .then(responses => Promise.all(responses.map(response => response.json())))
+        .then(([user, games]) => { return { user, games } })
   },
   {
     path: "/login",
