@@ -4,7 +4,7 @@ import Stack from 'react-bootstrap/Stack'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { useLocation } from 'react-router-dom'
-import { postJson } from '../api'
+import { login } from '../api'
 
 const AuthForm = () => {
   const { Label } = Form
@@ -14,8 +14,7 @@ const AuthForm = () => {
 
   const onSubmit = e => {
     e.preventDefault()
-    postJson(`/auth${pathname}`, { username, password })
-      .then(response => response.json())
+    login(pathname, username, password)
   }
 
   return (

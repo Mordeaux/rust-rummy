@@ -12,7 +12,7 @@ const settings = {
 
 }
 
-const get = path => {
+export const get = path => {
   return fetch(
     `${baseURL}${path}`,
     {
@@ -36,3 +36,7 @@ export const postJson = (path, data) => {
   )
 }
 
+export const login = (pathname, username, password) => {
+    return postJson(`/auth${pathname}`, { username, password })
+      .then(response => response.json())
+}

@@ -1,21 +1,36 @@
-from flask import jsonify
 from flask_login import UserMixin
 
 from ..app import db
+from ..games.game import UserGame
 
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
-    password = db.Column(db.String(100))
-    username = db.Column(db.String(1000))
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(1000), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    game_associations = db.relationship(
+        UserGame,
+        back_populates='user',
+    )
+    games = db.relationship(
+        'Game',
+        secondary=UserGame.__table__,
+        back_populates='users',
+        viewonly=True,
+    )
+    date_created  = db.Column(
+        db.DateTime,
+        default=db.func.current_timestamp(),
+    )
+    date_modified = db.Column(
+        db.DateTime,
+        default=db.func.current_timestamp(),
+        onupdate=db.func.current_timestamp(),
+    )
 
-    def jsonify(self):
-        return jsonify({
+    def as_dict(self):
+        return {
             'userId': self.id,
             'username': self.username,
-            'games': [
-                'game1',
-                'game2',
-                'game3',
-            ],
-        })
+            'games': [game.id for game in self.games],
+        }
