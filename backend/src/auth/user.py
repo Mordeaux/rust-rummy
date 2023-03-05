@@ -10,15 +10,15 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     game_associations = db.relationship(
         UserGame,
-        back_populates='user',
+        back_populates="user",
     )
     games = db.relationship(
-        'Game',
+        "Game",
         secondary=UserGame.__table__,
-        back_populates='users',
+        back_populates="users",
         viewonly=True,
     )
-    date_created  = db.Column(
+    date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
     )
@@ -30,7 +30,7 @@ class User(UserMixin, db.Model):
 
     def as_dict(self):
         return {
-            'userId': self.id,
-            'username': self.username,
-            'games': [game.id for game in self.games],
+            "userId": self.id,
+            "username": self.username,
+            "games": [game.id for game in self.games],
         }

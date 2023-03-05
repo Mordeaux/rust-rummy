@@ -16,6 +16,16 @@ flask-login = "^0.6.2"
 flask-sqlalchemy = "^3.0.3"
 
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.0.1"
+types-flask-cors = "^3.0.10.3"
+types-flask-sqlalchemy = "^2.5.9.2"
+types-sqlalchemy = "^1.4.53.33"
+black = "^23.1.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
