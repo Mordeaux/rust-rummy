@@ -62,8 +62,8 @@ class Game(db.Model):
 
     def as_dict(self):
         return {
-            users: [user.id for user in self.users],
-            name: self.name,
+            "users": [user.id for user in self.users],
+            "name": self.name,
         }
 
     def add_user(self, user):
