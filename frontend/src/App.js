@@ -4,45 +4,40 @@ import { Link, useLoaderData } from 'react-router-dom'
 import { logout } from './api'
 import { GameList } from './game'
 
-
 const Unauthenticated = () => {
   return (
     <>
-      <Link to='/login'>Login</Link>
-      - or -
-      <Link to='/signup'>Sign Up</Link>
+      <Link to="/login">Login</Link>- or -<Link to="/signup">Sign Up</Link>
     </>
   )
 }
 
 const LandingPage = () => {
-  const { user: { username }, games } = useLoaderData()
+  const {
+    user: { username },
+    games,
+  } = useLoaderData()
   return (
     <>
       <h1>Hello {username}</h1>
       <span onClick={logout}>logout</span>
-      <GameList games={games}/>
+      <GameList games={games} />
     </>
   )
 }
 
 const App = () => {
-  const { user: { username } } = useLoaderData()
+  const {
+    user: { username },
+  } = useLoaderData()
 
   return (
     <div className="rummy-app">
       <Container>
-        <Row>
-          {
-            username ?
-              <LandingPage />
-              : <Unauthenticated />
-          }
-        </Row>
+        <Row>{username ? <LandingPage /> : <Unauthenticated />}</Row>
       </Container>
     </div>
   )
 }
-
 
 export default App

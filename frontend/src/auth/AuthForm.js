@@ -8,11 +8,11 @@ import { login } from '../api'
 
 const AuthForm = () => {
   const { Label } = Form
-  const [ username, setUsername ] = useState('')
-  const [ password, setPassword ] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const { pathname } = useLocation()
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault()
     login(pathname, username, password)
   }
@@ -27,7 +27,7 @@ const AuthForm = () => {
               type="text"
               name="username"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </Label>
         </Col>
@@ -38,21 +38,17 @@ const AuthForm = () => {
               type="password"
               name="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Label>
         </Col>
         <Col>
           <Button variant="primary" type="submit">
-            { pathname === '/signup' ?
-                'Sign Up' :
-                'Login'
-            }
+            {pathname === '/signup' ? 'Sign Up' : 'Login'}
           </Button>
         </Col>
       </Stack>
     </Form>
-
   )
 }
 

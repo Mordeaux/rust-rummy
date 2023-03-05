@@ -1,9 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import reportWebVitals from './reportWebVitals'
 import App from './App'
@@ -12,18 +9,23 @@ import { getCurrentUser, getGames } from './api'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <App />,
-    loader: async () => Promise.all([getCurrentUser(), getGames()])
-        .then(responses => Promise.all(responses.map(response => response.json())))
-        .then(([user, games]) => { return { user, games } })
+    loader: async () =>
+      Promise.all([getCurrentUser(), getGames()])
+        .then((responses) =>
+          Promise.all(responses.map((response) => response.json()))
+        )
+        .then(([user, games]) => {
+          return { user, games }
+        }),
   },
   {
-    path: "/login",
+    path: '/login',
     element: <AuthForm />,
   },
   {
-    path: "/signup",
+    path: '/signup',
     element: <AuthForm />,
   },
 ])

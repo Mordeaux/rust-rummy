@@ -6,13 +6,12 @@ const GameList = () => {
 
   return (
     <ul>
-      {games.map(
-        game => (
-          <li key={game.id}>
-            {game.name} with {game.users.filter(filterOutSelf).map(user => user.username)}
-          </li>
-        )
-      )}
+      {games.map((game) => (
+        <li key={game.id}>
+          {game.name} with{' '}
+          {game.users.filter(filterOutSelf).map((user) => user.username)}
+        </li>
+      ))}
     </ul>
   )
 }
