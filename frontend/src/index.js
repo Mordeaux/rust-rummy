@@ -5,7 +5,8 @@ import './index.css'
 import reportWebVitals from './reportWebVitals'
 import App from './App'
 import { AuthForm } from './auth'
-import { getCurrentUser, getGames } from './api'
+import { getCurrentUser, getGames, getGame } from './api'
+import { GameView } from './game'
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,11 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: <AuthForm />,
+  },
+  {
+    path: '/games/:gameId',
+    element: <GameView />,
+    loader: async ({ params: { gameId } }) => getGame(gameId),
   },
 ])
 

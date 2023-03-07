@@ -20,6 +20,7 @@ export const get = (path) => {
 export const getCurrentUser = get.bind(undefined, '/auth/user')
 
 export const getGames = get.bind(undefined, '/games/')
+export const getGame = (gameId) => get(`/games/${gameId}`)
 
 export const postJson = (path, data) => {
   return fetch(`${baseURL}${path}`, {

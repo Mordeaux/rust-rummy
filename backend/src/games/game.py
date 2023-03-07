@@ -1,3 +1,5 @@
+import json
+
 from ..app import db
 
 
@@ -25,6 +27,7 @@ class UserGame(db.Model):
     # Users should be sorted into order by this index
     order_index = db.Column(db.Integer, nullable=False)
     score = db.Column(db.Integer, nullable=False, default=0)
+    hand = db.Column(db.String(512))
     date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
@@ -34,6 +37,12 @@ class UserGame(db.Model):
         default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp(),
     )
+
+    def load_hand(self):
+        return json.loads(self.hand)
+
+    def set_hand(self, hand):
+        self.hand = json.dumps(hand)
 
 
 class Game(db.Model):
@@ -48,8 +57,10 @@ class Game(db.Model):
     user_associations = db.relationship(
         UserGame,
         back_populates="game",
+        order_by="desc(UserGame.order_index)",
     )
-    name = db.Column(db.String(1000))
+    name = db.Column(db.String(1024))
+    cards = db.Column(db.String(512))
     date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
@@ -60,10 +71,20 @@ class Game(db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    def as_dict(self):
+    def as_dict(self, current_user):
         return {
             "id": self.id,
-            "users": [user.as_dict() for user in self.users],
+            "players": [
+                {
+                    **user_game.user.as_dict(),
+                    "score": user_game.score,
+                    "order_index": user_game.order_index,
+                    "hand": user_game.load_hand()
+                    if current_user.id == user_game.user_id
+                    else ["xx" for card in user_game.load_hand()],
+                }
+                for user_game in self.user_associations
+            ],
             "name": self.name,
         }
 
@@ -79,3 +100,9 @@ class Game(db.Model):
     def add_users(self, users):
         for user in users:
             self.add_user(user)
+
+    def set_cards(self, cards):
+        self.cards = json.dumps(cards)
+
+    def load_cards(self):
+        return json.loads(self.cards)

@@ -1,4 +1,4 @@
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData, Link } from 'react-router-dom'
 
 const GameList = () => {
   const { user, games = [] } = useLoaderData()
@@ -8,8 +8,10 @@ const GameList = () => {
     <ul>
       {games.map((game) => (
         <li key={game.id}>
-          {game.name} with{' '}
-          {game.users.filter(filterOutSelf).map((user) => user.username)}
+          <Link to={`/games/${game.id}`}>
+            {game.name} with{' '}
+            {game.users.filter(filterOutSelf).map((user) => user.username)}
+          </Link>
         </li>
       ))}
     </ul>

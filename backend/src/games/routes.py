@@ -37,8 +37,8 @@ def create_games_blueprint():
     @games.route("/<int:game_id>", methods=["GET"])
     def get_game_by_id(game_id: int) -> Response:
         games = current_user.games
-        game = games.query.get(game_id)
-        return jsonify(game.as_dict())
+        game = next((game for game in games if game.id == game_id), None)
+        return jsonify(game.as_dict(current_user) if game else {})
 
     @login_required
     @games.route("/<int:game_id>", methods=["PUT"])
