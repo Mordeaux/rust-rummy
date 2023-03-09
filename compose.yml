@@ -27,6 +27,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend:/app
+      - rust-target:/app/src/rust-build
     depends_on:
       - db
     networks:
@@ -47,7 +48,17 @@ services:
       - 3000:3000
     volumes:
       - ./frontend:/app
+      - rust-target:/app/src/rust-build
     command: yarn start
+
+  rust:
+    build:
+      context: rust
+      target: development
+    volumes:
+      - ./rust:/app
+      - rust-target:/app/target
+    command: cargo watch -x build
 
 
 networks:
@@ -56,3 +67,4 @@ networks:
 
 volumes:
   db-data: {}
+  rust-target: {}

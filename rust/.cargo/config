@@ -1,0 +1,4 @@
+# A feature under development now will allow a package-level default-target
+# Remember to check back for this
+[build]
+target = "wasm32-unknown-unknown"
