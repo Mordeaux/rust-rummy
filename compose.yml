@@ -17,7 +17,7 @@ services:
     image: flask
     build:
       context: backend
-      target: builder
+      target: development
     environment:
       - PG_DBNAME=postgres
       - PG_HOST=db
@@ -37,16 +37,17 @@ services:
       - '5000:5000'
     command: /.poetry_venv/bin/poetry run flask --app=src --debug run --host=0.0.0.0
 
-# frontend:
-#   build:
-#     context: frontend
-#     target: development
-#   networks:
-#     - client-side
-#   ports:
-#     - 3000:3000
-#   volumes:
-#     - ./frontend/src:/code/src:ro
+  frontend:
+    build:
+      context: frontend
+      target: development
+    networks:
+      - client-side
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+    command: yarn start
 
 
 networks:

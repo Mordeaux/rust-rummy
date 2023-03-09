@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM python:3.11-alpine AS builder
+FROM python:3.11-alpine AS development
 ENV VENV_PATH=/.poetry_venv
 
 WORKDIR /app
