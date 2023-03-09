@@ -8,8 +8,8 @@ from .game import Game
 def create_games_blueprint():
     games = Blueprint("games", __name__, url_prefix="/games")
 
-    @login_required
     @games.route("/", methods=["POST"])
+    @login_required
     def create_game() -> Response:
         from ..auth.user import User
 
@@ -26,27 +26,27 @@ def create_games_blueprint():
         db.session.add(new_game)
         db.session.commit()
 
-        return jsonify(new_game.as_dict())
+        return jsonify(new_game.as_dict(current_user))
 
-    @login_required
     @games.route("/", methods=["GET"])
-    def list_games() -> Response:
-        return jsonify([game.as_dict() for game in current_user.games])
-
     @login_required
+    def list_games() -> Response:
+        return jsonify([game.as_dict(current_user) for game in current_user.games])
+
     @games.route("/<int:game_id>", methods=["GET"])
+    @login_required
     def get_game_by_id(game_id: int) -> Response:
         games = current_user.games
         game = next((game for game in games if game.id == game_id), None)
         return jsonify(game.as_dict(current_user) if game else {})
 
-    @login_required
     @games.route("/<int:game_id>", methods=["PUT"])
+    @login_required
     def join_game(game_id: int) -> Response:
         game = Game.query.get(game_id)
         game.users.append(current_user)
         db.session.add(game)
         db.session.commit()
-        return jsonify(game.as_dict())
+        return jsonify(game.as_dict(current_user))
 
     return games

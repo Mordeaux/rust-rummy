@@ -19,7 +19,7 @@ const router = createBrowserRouter([
         )
         .then(([user, games]) => {
           return { user, games }
-        }),
+        }).catch(() => {return {user:{},games:[]}}),
   },
   {
     path: '/login',

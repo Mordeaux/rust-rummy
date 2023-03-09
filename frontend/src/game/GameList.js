@@ -10,7 +10,7 @@ const GameList = () => {
         <li key={game.id}>
           <Link to={`/games/${game.id}`}>
             {game.name} with{' '}
-            {game.users.filter(filterOutSelf).map((user) => user.username)}
+            {game.players.filter(filterOutSelf).map((user) => user.username)}
           </Link>
         </li>
       ))}

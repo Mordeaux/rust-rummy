@@ -71,7 +71,7 @@ class Game(db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    def as_dict(self, current_user):
+    def as_dict(self, current_user=None):
         return {
             "id": self.id,
             "players": [
@@ -80,7 +80,7 @@ class Game(db.Model):
                     "score": user_game.score,
                     "order_index": user_game.order_index,
                     "hand": user_game.load_hand()
-                    if current_user.id == user_game.user_id
+                    if current_user and current_user.id == user_game.user_id
                     else ["xx" for card in user_game.load_hand()],
                 }
                 for user_game in self.user_associations

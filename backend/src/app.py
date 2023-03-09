@@ -1,12 +1,12 @@
+import os
+
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
-
-# poetry run flask --app=src --debug run
-
 
 def create_app() -> Flask:
     from .auth import auth_blueprint
@@ -14,7 +14,13 @@ def create_app() -> Flask:
 
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "temporary key"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+    db_uri = 'postgresql+psycopg2://{}:{}@{}/{}'.format(
+        os.environ.get('PG_USER'),
+        os.environ.get('PG_PASSWORD'),
+        os.environ.get('PG_HOST'),
+        os.environ.get('PG_DBNAME'),
+    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["CORS_SUPPORTS_CREDENTIALS"] = True
 
     # Register Blueprints

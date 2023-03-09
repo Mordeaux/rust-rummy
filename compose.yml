@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    networks:
+      - server-side
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  flask:
+    image: flask
+    build:
+      context: backend
+      target: builder
+    environment:
+      - PG_DBNAME=postgres
+      - PG_HOST=db
+      - PG_USER=postgres
+      - PG_PASSWORD=mysecretpassword
+      - ADDRESS=0.0.0.0:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend:/app
+    depends_on:
+      - db
+    networks:
+      - client-side
+      - server-side
+    stop_signal: SIGINT
+    ports:
+      - '5000:5000'
+    command: /.poetry_venv/bin/poetry run flask --app=src --debug run --host=0.0.0.0
+
+# frontend:
+#   build:
+#     context: frontend
+#     target: development
+#   networks:
+#     - client-side
+#   ports:
+#     - 3000:3000
+#   volumes:
+#     - ./frontend/src:/code/src:ro
+
+
+networks:
+  client-side: {}
+  server-side: {}
+
+volumes:
+  db-data: {}
