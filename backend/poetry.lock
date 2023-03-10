@@ -661,6 +661,25 @@ files = [
 ]
 
 [[package]]
+name = "wasmtime"
+version = "6.0.0"
+description = "A WebAssembly runtime powered by Wasmtime"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "wasmtime-6.0.0-py3-none-any.whl", hash = "sha256:4b9ccb4c29a6c03729b8eb376de2c7e7e27a92ed5b6f84c2b1a37379eeeeb255"},
+    {file = "wasmtime-6.0.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:dfb974d82f09f8b9f4993a9c3256c42b40d9f223128f54da7d9a07043645ed35"},
+    {file = "wasmtime-6.0.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:df1e6f735642490de585701c1030dc4e9cc4d853628370183fa3d91e9b5d816c"},
+    {file = "wasmtime-6.0.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:5a457ae39c77521aced2a9d66148a38583965ded101cd97803a2f0aa86139b9e"},
+    {file = "wasmtime-6.0.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:694420c5049d1bdd767daa7969eb73d1dd70a778f2d831d13c4aa14fe63beeef"},
+    {file = "wasmtime-6.0.0-py3-none-win_amd64.whl", hash = "sha256:fe77820fecc6f12da97be35d2a3bf0be8e47904e8b7e75e0e07b156a79eadba0"},
+]
+
+[package.extras]
+testing = ["coverage", "flake8 (==4.0.1)", "pycparser", "pytest", "pytest-flake8", "pytest-mypy"]
+
+[[package]]
 name = "werkzeug"
 version = "2.2.3"
 description = "The comprehensive WSGI web application library."
@@ -681,4 +700,4 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9d758119921a1cbf6e8bc35a0ad304174908790ad8fdfd12757c75c57ed39083"
+content-hash = "cec23ce09a56a32adf24d06e7ec1ccaf0c551eafe496d4bcc82e72905a74a19e"

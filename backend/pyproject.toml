@@ -15,6 +15,7 @@ flask-cors = "^3.0.10"
 flask-login = "^0.6.2"
 flask-sqlalchemy = "^3.0.3"
 psycopg2 = "^2.9.5"
+wasmtime = "^6.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

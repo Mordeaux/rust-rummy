@@ -7,6 +7,9 @@ import App from './App'
 import { AuthForm } from './auth'
 import { getCurrentUser, getGames, getGame } from './api'
 import { GameView } from './game'
+import rummyWasm from './rummy-wasm'
+
+rummyWasm.then(wasm => console.log(wasm.add(8,9)))
 
 const router = createBrowserRouter([
   {
