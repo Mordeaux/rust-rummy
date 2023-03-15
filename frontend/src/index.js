@@ -7,9 +7,15 @@ import App from './App'
 import { AuthForm } from './auth'
 import { getCurrentUser, getGames, getGame } from './api'
 import { GameView } from './game'
-import rummyWasm from './rummy-wasm'
+import rummyWasmPromise from './rummy-wasm'
 
-rummyWasm.then(wasm => console.log(wasm.add(8,9)))
+rummyWasmPromise.then(wasm => console.log(wasm.concatenate('4','666')))
+rummyWasmPromise.then(wasm => console.log(
+  wasm.concatenate(
+    wasm.concatenate('hello',' '),
+    'world',
+  )
+))
 
 const router = createBrowserRouter([
   {

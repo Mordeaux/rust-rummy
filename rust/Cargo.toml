@@ -3,8 +3,13 @@ name = "rummy"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[dependencies]
+[features]
+pybindings = ["pyo3"]
+jsbindings = ["wasm-bindgen"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.18.1", features = ["extension-module"], optional = true }
+wasm-bindgen = { version = "0.2.84", optional = true }

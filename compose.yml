@@ -12,12 +12,12 @@ services:
       - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql/data
+    stop_signal: SIGINT
 
-  flask:
-    image: flask
+  backend:
     build:
-      context: backend
-      target: development
+      context: .
+      target: flask
     environment:
       - PG_DBNAME=postgres
       - PG_HOST=db
@@ -27,38 +27,58 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend:/app
-      - rust-target:/app/src/rust-build
+      - rust-python:/app/rust-python
+      - virtualenv:/venv
     depends_on:
       - db
+      - rust-python
     networks:
       - client-side
       - server-side
     stop_signal: SIGINT
     ports:
       - '5000:5000'
-    command: /.poetry_venv/bin/poetry run flask --app=src --debug run --host=0.0.0.0
+    command: poetry run flask --app=src --debug run --host=0.0.0.0
 
   frontend:
     build:
       context: frontend
       target: development
-    networks:
-      - client-side
     ports:
       - 3000:3000
     volumes:
       - ./frontend:/app
-      - rust-target:/app/src/rust-build
+      - rust-wasm:/app/src/rummy-wasm
+      - node-modules:/app/node_modules
+    depends_on:
+      - db
+      - rust-wasm
+    networks:
+      - client-side
+    stop_signal: SIGINT
     command: yarn start
 
-  rust:
+  rust-wasm:
     build:
-      context: rust
-      target: development
+      context: .
+      target: rust_wasm
     volumes:
       - ./rust:/app
-      - rust-target:/app/target
-    command: cargo watch -x build
+      - rust-wasm:/app/pkg
+    stop_signal: SIGINT
+    command: cargo watch -i 'pkg/*' -- wasm-pack build -- --features jsbindings
+
+  rust-python:
+    build:
+      context: .
+      target: rust_python
+    volumes:
+      - ./rust:/app
+      - rust-python:/app/target/wheels
+      - virtualenv:/venv
+    stop_signal: SIGINT
+    command: cargo watch -- maturin develop --features pybindings
+
 
 
 networks:
@@ -67,4 +87,7 @@ networks:
 
 volumes:
   db-data: {}
-  rust-target: {}
+  rust-wasm: {}
+  rust-python: {}
+  node-modules: {}
+  virtualenv: {}
