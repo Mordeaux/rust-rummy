@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 
 from ..app import db
 from .game import Game
+from .controller import GameController
 
 
 def create_games_blueprint():
@@ -33,11 +34,21 @@ def create_games_blueprint():
     def list_games() -> Response:
         return jsonify([game.as_dict(current_user) for game in current_user.games])
 
+    @games.route("/<int:game_id>/draw", methods=["GET"])
+    @login_required
+    def draw(game_id: int) -> Response:
+        """"""
+        game_controller = GameController.get_controller_by_game_id(current_user, game_id)
+        game_controller.draw()
+        db.session.add(game_controller.game)
+        db.session.add(game_controller.user_game)
+        db.session.commit()
+        return jsonify(game_controller.game.as_dict(current_user))
+
     @games.route("/<int:game_id>", methods=["GET"])
     @login_required
     def get_game_by_id(game_id: int) -> Response:
-        games = current_user.games
-        game = next((game for game in games if game.id == game_id), None)
+        game = GameController.get_game_by_id(current_user, game_id)
         return jsonify(game.as_dict(current_user) if game else {})
 
     @games.route("/<int:game_id>", methods=["PUT"])

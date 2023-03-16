@@ -1,19 +1,21 @@
+"""Contains the Game model as well as UserGame pivot model."""
 import json
 
 from ..app import db
 
 
 class UserGame(db.Model):
+    """This table connects a user to a game. Because there is information
+    relevant to this relationship, like a score, or the order index,
+    a Model is used instead of the more typical Table object."""
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id"),
-        primary_key=True,
         nullable=False,
     )
     game_id = db.Column(
         db.Integer,
         db.ForeignKey("game.id"),
-        primary_key=True,
         nullable=False,
     )
     user = db.relationship(
@@ -24,10 +26,10 @@ class UserGame(db.Model):
         "Game",
         back_populates="user_associations",
     )
-    # Users should be sorted into order by this index
-    order_index = db.Column(db.Integer, nullable=False)
+    # Users should be sorted into playing order by this index
+    order_index = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False, default=0)
-    hand = db.Column(db.String(512))
+    _hand = db.Column(db.String(512))
     date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
@@ -38,11 +40,13 @@ class UserGame(db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    def load_hand(self):
-        return json.loads(self.hand)
+    @property
+    def hand(self):
+        return json.loads(self._hand) if self._hand else []
 
-    def set_hand(self, hand):
-        self.hand = json.dumps(hand)
+    @hand.setter
+    def hand(self, new_hand):
+        self._hand = json.dumps(new_hand)
 
 
 class Game(db.Model):
@@ -52,15 +56,17 @@ class Game(db.Model):
         secondary=UserGame.__table__,
         back_populates="games",
         viewonly=True,
-        order_by="desc(UserGame.order_index)",
+        order_by="asc(UserGame.order_index)",
     )
     user_associations = db.relationship(
         UserGame,
         back_populates="game",
-        order_by="desc(UserGame.order_index)",
+        order_by="asc(UserGame.order_index)",
     )
     name = db.Column(db.String(1024))
-    cards = db.Column(db.String(512))
+    _deck = db.Column(db.String(512))
+    _discards = db.Column(db.String(512))
+    turn = db.Column(db.Integer, default=0)
     date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
@@ -72,6 +78,7 @@ class Game(db.Model):
     )
 
     def as_dict(self, current_user=None):
+        """For JSON convenience"""
         return {
             "id": self.id,
             "players": [
@@ -79,30 +86,43 @@ class Game(db.Model):
                     **user_game.user.as_dict(),
                     "score": user_game.score,
                     "order_index": user_game.order_index,
-                    "hand": user_game.load_hand()
+                    "hand": user_game.hand
                     if current_user and current_user.id == user_game.user_id
-                    else ["xx" for card in user_game.load_hand()],
+                    else ["xx" for card in user_game.hand],
                 }
                 for user_game in self.user_associations
             ],
+            "turn": self.turn,
+            "discards": self.discards,
             "name": self.name,
         }
 
     def add_user(self, user):
+        """Add a single User object to the game."""
         self.user_associations.append(
             UserGame(
                 user=user,
                 game=self,
-                order_index=len(self.users),
             )
         )
 
     def add_users(self, users):
+        """Add several User objects to the game."""
         for user in users:
             self.add_user(user)
 
-    def set_cards(self, cards):
-        self.cards = json.dumps(cards)
+    @property
+    def deck(self):
+        return json.loads(self._deck) if self._deck else []
 
-    def load_cards(self):
-        return json.loads(self.cards)
+    @deck.setter
+    def deck(self, new_cards):
+        self._deck = json.dumps(new_cards)
+
+    @property
+    def discards(self):
+        return json.loads(self._discards) if self._discards else []
+
+    @discards.setter
+    def discards(self, new_cards):
+        self._discards = json.dumps(new_cards)

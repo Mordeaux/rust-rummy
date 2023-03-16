@@ -10,6 +10,8 @@ const settings = {
   redirect: 'follow',
 }
 
+const getJson = response => response.json()
+
 export const get = (path) => {
   return fetch(`${baseURL}${path}`, {
     ...settings,
@@ -32,9 +34,9 @@ export const postJson = (path, data) => {
 }
 
 export const login = (pathname, username, password) => {
-  return postJson(`/auth${pathname}`, { username, password }).then((response) =>
-    response.json()
-  )
+  return postJson(`/auth${pathname}`, { username, password }).then(getJson)
 }
 
 export const logout = get.bind(undefined, '/auth/logout')
+
+export const draw = (gameId) => get(`/games/${gameId}/draw`).then(getJson)
