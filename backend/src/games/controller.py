@@ -27,8 +27,8 @@ class GameController:
 
     def shuffle(self):
         """Creates a new deck and shuffles it."""
-        suits = ["h", "s", "d", "c"]
-        cards = [str(value) + suit for value in range(1, 14) for suit in suits]
+        suits = ["hearts", "spades", "diamonds", "clubs"]
+        cards = [{'suit':suit, 'rank': rank} for rank in range(1, 14) for suit in suits]
         random.shuffle(cards)
         starting_discard = cards.pop()
         self.game.deck = cards

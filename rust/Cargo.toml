@@ -12,4 +12,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.18.1", features = ["extension-module"], optional = true }
+serde = { version = "1.0.156", features = ["derive"] }
+serde_json = "1.0.94"
 wasm-bindgen = { version = "0.2.84", optional = true }

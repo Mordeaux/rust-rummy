@@ -30,6 +30,6 @@ class User(UserMixin, db.Model):
 
     def as_dict(self):
         return {
-            "userId": self.id,
+            "id": self.id,
             "username": self.username,
         }

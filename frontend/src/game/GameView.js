@@ -2,10 +2,11 @@ import { useLoaderData, useParams } from 'react-router-dom'
 import { draw as apiDraw } from '../api'
 
 const Hand = ({ hand, user = false }) => {
+  const displayCard = ({card}) => card ? `${card.rank}${card.suit}` : 'xx'
   return (
     <div className="hand">
       {hand.map((card, index) => (
-        <h3 key={user ? card : index}>{card}</h3>
+        <h3 key={user ? displayCard(card) : index}>{displayCard(card)}</h3>
       ))}
     </div>
   )
@@ -30,26 +31,24 @@ const Deck = ({ discards = [] }) => {
 
   return (
     <div className="deck">
-      <h3>{discards} <span onClick={draw.bind(undefined)}>The Deck</span></h3>
+      <h3>{discards.map(card => `${card.rank}${card.suit}`)} <span onClick={draw.bind(undefined)}>The Deck</span></h3>
     </div>
   )
 }
 
 const GameView = () => {
-  const { name: gameName, players, discards, turn } = useLoaderData()
-  const opponent = players.find(({ userId }) => userId !== 1)
-  const player = players.find(({ userId }) => userId === 1)
+  const { name: gameName, players, discards, current_turn: currentTurn } = useLoaderData()
+  const opponent = players.find(({ id }) => id !== 1)
+  const player = players.find(({ id }) => id === 1)
   players.sort(player => player.order_index)
-  console.log(players)
-  console.log(turn)
 
   return (
     <div className="game-view">
       <h1>{gameName}</h1>
       <div className="game-board">
-        <PlayerView player={opponent} isTurn={opponent === players[turn]} />
+        <PlayerView player={opponent} isTurn={opponent === players[currentTurn]} />
         <Deck discards={discards} />
-        <PlayerView player={player} user isTurn={player === players[turn]} />
+        <PlayerView player={player} user isTurn={player === players[currentTurn]} />
         <h2>DISCARD</h2>
       </div>
     </div>

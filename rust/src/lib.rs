@@ -1,3 +1,7 @@
+mod parser;
+
+use parser::common_parse_game_state;
+
 #[cfg(feature = "jsbindings")]
 use wasm_bindgen::prelude::*;
 
@@ -16,6 +20,12 @@ pub fn concatenate(left: &str, right: &str) -> String {
     common_concatenate(left, right)
 }
 
+#[cfg(feature = "jsbindings")]
+#[wasm_bindgen]
+pub fn parse_game_state(game_state_json: &str) -> bool {
+    common_parse_game_state(game_state_json);
+    true
+}
 
 #[cfg(feature = "pybindings")]
 #[pyfunction]
@@ -29,17 +39,22 @@ pub fn add(left: u32, right: u32) -> u32 {
     common_add(left, right)
 }
 
+#[cfg(feature = "pybindings")]
+#[pyfunction]
+pub fn parse_game_state(game_state_json: &str) -> bool {
+    let game_state = common_parse_game_state(game_state_json);
+    true
+}
 
-pub fn common_add(left: u32, right: u32) -> u32 {
+fn common_add(left: u32, right: u32) -> u32 {
     left + right
 }
 
-pub fn common_concatenate(left: &str, right: &str) -> String {
+fn common_concatenate(left: &str, right: &str) -> String {
     let mut owned = left.to_string();
     owned.push_str(right);
     owned
 }
-
 
 /// A Python module implemented in Rust.
 #[cfg(feature = "pybindings")]
@@ -47,6 +62,7 @@ pub fn common_concatenate(left: &str, right: &str) -> String {
 fn rummy(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(concatenate, m)?)?;
     m.add_function(wrap_pyfunction!(add, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_game_state, m)?)?;
     Ok(())
 }
 
@@ -61,4 +77,3 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
-
