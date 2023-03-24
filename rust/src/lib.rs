@@ -1,3 +1,4 @@
+mod gameplay;
 mod parser;
 
 use parser::common_parse_game_state;
@@ -10,33 +11,20 @@ use pyo3::prelude::*;
 
 #[cfg(feature = "jsbindings")]
 #[wasm_bindgen]
-pub fn add(left: u32, right: u32) -> u32 {
-    common_add(left, right)
-}
-
-#[cfg(feature = "jsbindings")]
-#[wasm_bindgen]
-pub fn concatenate(left: &str, right: &str) -> String {
-    common_concatenate(left, right)
-}
-
-#[cfg(feature = "jsbindings")]
-#[wasm_bindgen]
-pub fn parse_game_state(game_state_json: &str) -> bool {
+pub fn parseGameState(game_state_json: &str) -> bool {
     common_parse_game_state(game_state_json);
     true
 }
 
-#[cfg(feature = "pybindings")]
-#[pyfunction]
-pub fn concatenate(left: &str, right: &str) -> String {
-    common_concatenate(left, right)
-}
-
-#[cfg(feature = "pybindings")]
-#[pyfunction]
-pub fn add(left: u32, right: u32) -> u32 {
-    common_add(left, right)
+#[cfg(feature = "jsbindings")]
+#[wasm_bindgen]
+pub fn getAvailableMoves(game_state_json: &str) -> String {
+    let game_state = common_parse_game_state(game_state_json);
+    let result = serde_json::to_string(&gameplay::get_available_moves(game_state));
+    match result {
+        Ok(available_moves) => available_moves,
+        Err(err) => err.to_string(),
+    }
 }
 
 #[cfg(feature = "pybindings")]
@@ -46,23 +34,23 @@ pub fn parse_game_state(game_state_json: &str) -> bool {
     true
 }
 
-fn common_add(left: u32, right: u32) -> u32 {
-    left + right
-}
-
-fn common_concatenate(left: &str, right: &str) -> String {
-    let mut owned = left.to_string();
-    owned.push_str(right);
-    owned
+#[cfg(feature = "pybindings")]
+#[pyfunction]
+pub fn get_available_moves(game_state_json: &str) -> String {
+    let game_state = common_parse_game_state(game_state_json);
+    let result = serde_json::to_string(&gameplay::get_available_moves(game_state));
+    match result {
+        Ok(available_moves) => available_moves,
+        Err(err) => err.to_string(),
+    }
 }
 
 /// A Python module implemented in Rust.
 #[cfg(feature = "pybindings")]
 #[pymodule]
 fn rummy(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(concatenate, m)?)?;
-    m.add_function(wrap_pyfunction!(add, m)?)?;
     m.add_function(wrap_pyfunction!(parse_game_state, m)?)?;
+    m.add_function(wrap_pyfunction!(get_available_moves, m)?)?;
     Ok(())
 }
 

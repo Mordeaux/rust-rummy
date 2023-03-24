@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
-#[derive(Serialize, Deserialize)]
-struct Card {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Card {
     rank: usize,
     suit: String,
 }
@@ -18,7 +18,7 @@ enum CardOption {
 }
 
 #[derive(Serialize, Deserialize)]
-enum TurnPhaseEnum {
+pub enum TurnPhaseEnum {
     #[serde(rename = "WAIT_FOR_TURN")]
     WaitForTurn,
     #[serde(rename = "DRAW")]
@@ -42,8 +42,8 @@ pub struct GameState {
     id: usize,
     players: Vec<Player>,
     current_turn: usize,
-    turn_phase: TurnPhaseEnum,
-    discards: Vec<Card>,
+    pub turn_phase: TurnPhaseEnum,
+    pub discards: Vec<Card>,
     name: String,
 }
 
