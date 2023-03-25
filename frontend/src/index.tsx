@@ -14,9 +14,6 @@ const router = createBrowserRouter([
     element: <App />,
     loader: async () =>
       Promise.all([getCurrentUser(), getGames()])
-        .then((responses) =>
-          Promise.all(responses.map((response) => response.json()))
-        )
         .then(([user, games]) => {
           return { user, games }
         })
@@ -39,6 +36,7 @@ const router = createBrowserRouter([
   },
 ])
 
+// @ts-ignore
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>

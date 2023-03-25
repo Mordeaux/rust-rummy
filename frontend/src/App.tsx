@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container'
 import { Link, useLoaderData } from 'react-router-dom'
 import { logout } from './api'
 import { GameList } from './game'
+import { User, GameState } from './apiTypes'
 
 const Unauthenticated = () => {
   return (
@@ -14,14 +15,14 @@ const Unauthenticated = () => {
 
 const LandingPage = () => {
   const {
-    user: { username },
+    user,
     games,
-  } = useLoaderData()
+  } = useLoaderData() as { user: User, games: GameState[]}
   return (
     <>
-      <h1>Hello {username}</h1>
+      <h1>Hello {user.username}</h1>
       <span onClick={logout}>logout</span>
-      <GameList games={games} />
+      <GameList games={games} user={user} />
     </>
   )
 }
@@ -29,8 +30,7 @@ const LandingPage = () => {
 const App = () => {
   const {
     user: { username },
-  } = useLoaderData()
-
+  } = useLoaderData() as { user: User, games: GameState[]}
   return (
     <div className="rummy-app">
       <Container>

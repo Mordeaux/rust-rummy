@@ -10,10 +10,16 @@ pub struct Card {
 #[derive(Serialize, Deserialize)]
 struct OpponentCard;
 
-#[derive(Serialize, Deserialize)]
-#[serde(tag = "type", content = "card")]
-enum CardOption {
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(tag = "card_type", content = "card")]
+pub enum CardOption {
+    #[serde(rename = "own_card")]
     OwnCard(Card),
+    #[serde(rename = "discard_card")]
+    DiscardCard(Card),
+    #[serde(rename = "meld_card")]
+    MeldCard(Card),
+    #[serde(rename = "opponent_card")]
     OpponentCard,
 }
 
@@ -33,7 +39,7 @@ struct Player {
     score: usize,
     order_index: usize,
     hand: Vec<CardOption>,
-    melds: Vec<Vec<Card>>,
+    melds: Vec<Vec<CardOption>>,
     username: String,
 }
 
@@ -43,7 +49,7 @@ pub struct GameState {
     players: Vec<Player>,
     current_turn: usize,
     pub turn_phase: TurnPhaseEnum,
-    pub discards: Vec<Card>,
+    pub discards: Vec<CardOption>,
     name: String,
 }
 

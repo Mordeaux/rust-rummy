@@ -1,22 +1,22 @@
 use serde::{Deserialize, Serialize};
 
-use crate::parser::{Card, GameState, TurnPhaseEnum};
+use crate::parser::{CardOption, GameState, TurnPhaseEnum};
 
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "move_type")]
 pub enum DrawPhaseMove {
     #[serde(rename = "draw_from_deck")]
     DrawFromDeck,
     #[serde(rename = "draw_from_discards")]
-    DrawFromDiscards(Card),
+    DrawFromDiscards(CardOption),
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "move_type")]
 pub enum PlayPhaseMove {
-    PlayRun(Vec<Card>),
-    PlayGroup(Vec<Card>),
-    Discard(Card),
+    PlayRun(Vec<CardOption>),
+    PlayGroup(Vec<CardOption>),
+    Discard(CardOption),
 }
 
 #[derive(Serialize, Deserialize)]

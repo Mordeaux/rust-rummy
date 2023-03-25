@@ -1,8 +1,8 @@
-import { useLoaderData, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { User, GameState } from '../apiTypes'
 
-const GameList = () => {
-  const { user, games = [] } = useLoaderData()
-  const filterOutSelf = ({ userId }) => userId !== user.userId
+const GameList = ({ user, games }: {user:User, games: GameState[]}) => {
+  const filterOutSelf = ({ id }: User) => id !== user.id
 
   return (
     <ul>

@@ -12,7 +12,7 @@ const AuthForm = () => {
   const [password, setPassword] = useState('')
   const { pathname } = useLocation()
 
-  const onSubmit = (e) => {
+  const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     login(pathname, username, password)
   }
