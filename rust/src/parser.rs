@@ -1,16 +1,20 @@
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
+use core::panic;
 
-#[derive(Serialize, Deserialize, Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Card {
     rank: usize,
     suit: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct OpponentCard;
+impl Card {
+    pub fn new(rank: usize, suit: String) -> Card {
+        Card { rank, suit }
+    }
+}
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(tag = "card_type", content = "card")]
 pub enum CardOption {
     #[serde(rename = "own_card")]
@@ -23,7 +27,16 @@ pub enum CardOption {
     OpponentCard,
 }
 
-#[derive(Serialize, Deserialize)]
+impl CardOption {
+    pub fn get_card(&self) -> &Card {
+        match self {
+            Self::OwnCard(card) | Self::DiscardCard(card) | Self::MeldCard(card) => card,
+            Self::OpponentCard => panic!("Cannot view opponents' cards!"),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub enum TurnPhaseEnum {
     #[serde(rename = "WAIT_FOR_TURN")]
     WaitForTurn,
@@ -33,26 +46,68 @@ pub enum TurnPhaseEnum {
     Play,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Player {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Player {
     id: usize,
     score: usize,
     order_index: usize,
-    hand: Vec<CardOption>,
+    pub hand: Vec<CardOption>,
     melds: Vec<Vec<CardOption>>,
     username: String,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct GameState {
-    id: usize,
-    players: Vec<Player>,
-    current_turn: usize,
-    pub turn_phase: TurnPhaseEnum,
-    pub discards: Vec<CardOption>,
-    name: String,
+impl Player {
+    pub fn set_hand(&mut self, new_hand: Vec<CardOption>) {
+        self.hand = new_hand;
+    }
 }
 
-pub fn common_parse_game_state(game_state_json: &str) -> GameState {
-    serde_json::from_str::<GameState>(game_state_json).unwrap()
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "move_type")]
+pub enum DrawPhaseMove {
+    #[serde(rename = "draw_from_deck")]
+    DrawFromDeck,
+    #[serde(rename = "draw_from_discards")]
+    DrawFromDiscards(CardOption),
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "move_type")]
+pub enum PlayPhaseMove {
+    #[serde(rename = "play_run")]
+    PlayRun(Vec<CardOption>),
+    #[serde(rename = "play_group")]
+    PlayGroup(Vec<CardOption>),
+    #[serde(rename = "discard")]
+    Discard(CardOption),
+}
+
+// Moves are stored in a vector to facilitate
+// serializing into json.
+#[derive(Serialize, Deserialize)]
+pub enum GameMoves {
+    #[serde(rename = "wait")]
+    Wait,
+    #[serde(rename = "draw")]
+    Draw(Vec<DrawPhaseMove>),
+    #[serde(rename = "play")]
+    Play(Vec<PlayPhaseMove>),
+}
+
+#[cfg(test)]
+mod gameplay_tests {
+    use super::*;
+
+    fn test_card_equality() {
+        assert_eq!(
+            CardOption::OwnCard(Card {
+                suit: "diamonds".into(),
+                rank: 10
+            }),
+            CardOption::OwnCard(Card {
+                suit: "diamonds".into(),
+                rank: 10
+            })
+        );
+    }
 }

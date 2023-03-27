@@ -1,7 +1,7 @@
 mod gameplay;
 mod parser;
 
-use parser::common_parse_game_state;
+use gameplay::GameState;
 
 #[cfg(feature = "jsbindings")]
 use wasm_bindgen::prelude::*;
@@ -11,16 +11,9 @@ use pyo3::prelude::*;
 
 #[cfg(feature = "jsbindings")]
 #[wasm_bindgen]
-pub fn parseGameState(game_state_json: &str) -> bool {
-    common_parse_game_state(game_state_json);
-    true
-}
-
-#[cfg(feature = "jsbindings")]
-#[wasm_bindgen]
 pub fn getAvailableMoves(game_state_json: &str) -> String {
-    let game_state = common_parse_game_state(game_state_json);
-    let result = serde_json::to_string(&gameplay::get_available_moves(game_state));
+    let game_state = GameState::new_from_json_str(game_state_json);
+    let result = serde_json::to_string(&game_state.get_available_moves());
     match result {
         Ok(available_moves) => available_moves,
         Err(err) => err.to_string(),
@@ -29,16 +22,9 @@ pub fn getAvailableMoves(game_state_json: &str) -> String {
 
 #[cfg(feature = "pybindings")]
 #[pyfunction]
-pub fn parse_game_state(game_state_json: &str) -> bool {
-    let game_state = common_parse_game_state(game_state_json);
-    true
-}
-
-#[cfg(feature = "pybindings")]
-#[pyfunction]
 pub fn get_available_moves(game_state_json: &str) -> String {
-    let game_state = common_parse_game_state(game_state_json);
-    let result = serde_json::to_string(&gameplay::get_available_moves(game_state));
+    let game_state = GameState::new_from_json_str(game_state_json);
+    let result = serde_json::to_string(&game_state.get_available_moves());
     match result {
         Ok(available_moves) => available_moves,
         Err(err) => err.to_string(),
@@ -49,7 +35,6 @@ pub fn get_available_moves(game_state_json: &str) -> String {
 #[cfg(feature = "pybindings")]
 #[pymodule]
 fn rummy(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(parse_game_state, m)?)?;
     m.add_function(wrap_pyfunction!(get_available_moves, m)?)?;
     Ok(())
 }
