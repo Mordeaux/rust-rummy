@@ -17,21 +17,17 @@ impl Card {
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(tag = "card_type", content = "card")]
 pub enum CardOption {
-    #[serde(rename = "own_card")]
-    OwnCard(Card),
-    #[serde(rename = "discard_card")]
-    DiscardCard(Card),
-    #[serde(rename = "meld_card")]
-    MeldCard(Card),
-    #[serde(rename = "opponent_card")]
-    OpponentCard,
+    #[serde(rename = "visible")]
+    Visible(Card),
+    #[serde(rename = "hidden")]
+    Hidden,
 }
 
 impl CardOption {
     pub fn get_card(&self) -> &Card {
         match self {
-            Self::OwnCard(card) | Self::DiscardCard(card) | Self::MeldCard(card) => card,
-            Self::OpponentCard => panic!("Cannot view opponents' cards!"),
+            Self::Visible(card) => card,
+            Self::Hidden => panic!("Cannot view opponents' cards!"),
         }
     }
 }
@@ -100,11 +96,11 @@ mod gameplay_tests {
 
     fn test_card_equality() {
         assert_eq!(
-            CardOption::OwnCard(Card {
+            CardOption::Visible(Card {
                 suit: "diamonds".into(),
                 rank: 10
             }),
-            CardOption::OwnCard(Card {
+            CardOption::Visible(Card {
                 suit: "diamonds".into(),
                 rank: 10
             })

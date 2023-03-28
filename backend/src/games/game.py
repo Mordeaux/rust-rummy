@@ -97,8 +97,8 @@ class Game(db.Model):
 
     def as_dict(self, current_user=None):
         """For JSON convenience"""
-        def _cards_with_type(card_list, tag: str, hidden=False):
-            return [{"card_type": tag, "card": card} if not hidden else {"card_type": tag} for card in card_list]
+        def _cards_marked(card_list, hidden=False):
+            return [{"card_type": "visible", "card": card} if not hidden else {"card_type": "hidden"} for card in card_list]
 
         return {
             "id": self.id,
@@ -107,16 +107,16 @@ class Game(db.Model):
                     **user_game.user.as_dict(),
                     "score": user_game.score,
                     "order_index": user_game.order_index,
-                    "melds": [_cards_with_type(meld, "meld_card") for meld in user_game.melds],
-                    "hand": _cards_with_type(user_game.hand, 'own_card')
+                    "melds": [_cards_marked(meld) for meld in user_game.melds],
+                    "hand": _cards_marked(user_game.hand)
                     if current_user and current_user.id == user_game.user_id
-                    else _cards_with_type(user_game.hand, "opponent_card", hidden=True),
+                    else _cards_marked(user_game.hand, hidden=True),
                 }
                 for user_game in self.user_associations
             ],
             "current_turn": self.current_turn,
             "turn_phase": self.turn_phase.name,
-            "discards": _cards_with_type(self.discards, "discard_card"),
+            "discards": _cards_marked(self.discards),
             "name": self.name,
         }
 

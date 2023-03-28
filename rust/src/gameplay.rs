@@ -73,7 +73,7 @@ impl GameState {
                     .take_while(|x| x != &card_option)
                     .chain(std::iter::once(card_option))
                     .cloned()
-                    .map(|x| CardOption::OwnCard(x.get_card().clone()))
+                    .map(|x| CardOption::Visible(x.get_card().clone()))
                     .collect();
                 let remaining_discards: Vec<CardOption> = discard_iterator.cloned().collect();
                 let mut new_game_state = self.clone();
@@ -103,7 +103,7 @@ mod gameplay_tests {
     use super::*;
 
     fn get_game_state() -> GameState {
-        let game_state_json = r#"{"id": 1, "players": [{"id": 1, "username": "mike", "score": 0, "order_index": 1, "melds": [], "hand": [{"card_type": "own_card", "card": {"suit": "diamonds", "rank": 4}}, {"card_type": "own_card", "card": {"suit": "spades", "rank": 10}}, {"card_type": "own_card", "card": {"suit": "spades", "rank": 9}}, {"card_type": "own_card", "card": {"suit": "diamonds", "rank": 13}}, {"card_type": "own_card", "card": {"suit": "spades", "rank": 3}}, {"card_type": "own_card", "card": {"suit": "diamonds", "rank": 1}}, {"card_type": "own_card", "card": {"suit": "diamonds", "rank": 2}}, {"card_type": "own_card", "card": {"suit": "clubs", "rank": 1}}, {"card_type": "own_card", "card": {"suit": "diamonds", "rank": 7}}, {"card_type": "own_card", "card": {"suit": "hearts", "rank": 4}}, {"card_type": "own_card", "card": {"suit": "clubs", "rank": 9}}]}, {"id": 2, "username": "kaitlin", "score": 0, "order_index": 2, "melds": [], "hand": [{"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}, {"card_type": "opponent_card"}]}], "current_turn": 0, "turn_phase": "DRAW", "discards": [{"card_type": "discard_card", "card": {"suit": "diamonds", "rank": 6}}], "name": "game one"}"#;
+        let game_state_json = r#"{"id": 1, "players": [{"id": 1, "username": "mike", "score": 0, "order_index": 1, "melds": [], "hand": [{"card_type": "visible", "card": {"suit": "diamonds", "rank": 4}}, {"card_type": "visible", "card": {"suit": "spades", "rank": 10}}, {"card_type": "visible", "card": {"suit": "spades", "rank": 9}}, {"card_type": "visible", "card": {"suit": "diamonds", "rank": 13}}, {"card_type": "visible", "card": {"suit": "spades", "rank": 3}}, {"card_type": "visible", "card": {"suit": "diamonds", "rank": 1}}, {"card_type": "visible", "card": {"suit": "diamonds", "rank": 2}}, {"card_type": "visible", "card": {"suit": "clubs", "rank": 1}}, {"card_type": "visible", "card": {"suit": "diamonds", "rank": 7}}, {"card_type": "visible", "card": {"suit": "hearts", "rank": 4}}, {"card_type": "visible", "card": {"suit": "clubs", "rank": 9}}]}, {"id": 2, "username": "kaitlin", "score": 0, "order_index": 2, "melds": [], "hand": [{"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}, {"card_type": "hidden"}]}], "current_turn": 0, "turn_phase": "DRAW", "discards": [{"card_type": "visible", "card": {"suit": "diamonds", "rank": 6}}], "name": "game one"}"#;
         GameState::new_from_json_str(game_state_json)
     }
 
@@ -124,16 +124,16 @@ mod gameplay_tests {
         let game_state = get_game_state();
 
         let game_moves =
-            serde_json::from_str::<GameMoves>(r#"{"draw":[{"move_type":"draw_from_discards","card_type":"discard_card","card":{"rank":6,"suit":"diamonds"}}]}"#)
+            serde_json::from_str::<GameMoves>(r#"{"draw":[{"move_type":"draw_from_discards","card_type":"visible","card":{"rank":6,"suit":"diamonds"}}]}"#)
                 .unwrap();
         let new_game_state = game_state.process_moves(game_moves);
         assert_eq!(new_game_state.turn_phase, TurnPhaseEnum::Play);
         assert_eq!(new_game_state.current_turn, game_state.current_turn);
         assert_eq!(new_game_state.discards.len(), 0);
         assert!({
-            if let CardOption::DiscardCard(discard) = &game_state.discards[0] {
+            if let CardOption::Visible(discard) = &game_state.discards[0] {
                 new_game_state.get_current_player_hand().iter().any(|x| {
-                    if let CardOption::OwnCard(card) = x {
+                    if let CardOption::Visible(card) = x {
                         card == discard
                     } else {
                         false
@@ -154,26 +154,26 @@ mod gameplay_tests {
             .cloned()
             .chain(
                 [
-                    CardOption::DiscardCard(Card::new(4, "diamonds".into())),
-                    CardOption::DiscardCard(Card::new(9, "clubs".into())),
-                    CardOption::DiscardCard(Card::new(8, "spades".into())),
-                    CardOption::DiscardCard(Card::new(13, "hearts".into())),
+                    CardOption::Visible(Card::new(4, "diamonds".into())),
+                    CardOption::Visible(Card::new(9, "clubs".into())),
+                    CardOption::Visible(Card::new(8, "spades".into())),
+                    CardOption::Visible(Card::new(13, "hearts".into())),
                 ]
                 .iter()
                 .cloned(),
             )
             .collect();
         let game_moves =
-            serde_json::from_str::<GameMoves>(r#"{"draw":[{"move_type":"draw_from_discards","card_type":"discard_card","card":{"rank":9,"suit":"clubs"}}]}"#)
+            serde_json::from_str::<GameMoves>(r#"{"draw":[{"move_type":"draw_from_discards","card_type":"visible","card":{"rank":9,"suit":"clubs"}}]}"#)
                 .unwrap();
         let new_game_state = game_state.process_moves(game_moves);
         assert_eq!(new_game_state.turn_phase, TurnPhaseEnum::Play);
         assert_eq!(new_game_state.current_turn, game_state.current_turn);
         assert_eq!(new_game_state.discards.len(), 2);
         assert!(game_state.discards.iter().take(3).all(|discard_option| {
-            if let CardOption::DiscardCard(discard) = discard_option {
+            if let CardOption::Visible(discard) = discard_option {
                 new_game_state.get_current_player_hand().iter().any(|x| {
-                    if let CardOption::OwnCard(card) = x {
+                    if let CardOption::Visible(card) = x {
                         card == discard
                     } else {
                         false
