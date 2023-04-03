@@ -1,7 +1,7 @@
 from typing import Dict
 
 from flask import Blueprint, Response, jsonify, request
-from flask_login import current_user, login_user, logout_user, login_required
+from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..app import db
@@ -27,7 +27,7 @@ def create_auth_blueprint() -> Blueprint:
             )
         login_user(user)
 
-        return jsonify(user.as_dict())
+        return jsonify(user.to_dict())
 
     @auth.route("/logout", methods=["GET"])
     @login_required
@@ -61,11 +61,11 @@ def create_auth_blueprint() -> Blueprint:
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify(new_user.as_dict())
+        return jsonify(new_user.to_dict())
 
     @auth.route("/user")
     @login_required
     def get_user() -> Response:
-        return jsonify(current_user.as_dict())
+        return jsonify(current_user.to_dict())
 
     return auth

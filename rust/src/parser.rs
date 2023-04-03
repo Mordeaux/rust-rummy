@@ -6,11 +6,33 @@ use serde::{Deserialize, Serialize};
 pub struct Card {
     rank: usize,
     suit: String,
+    #[serde(default = "Card::true_default")]
+    playable: bool,
 }
 
 impl Card {
     pub fn new(rank: usize, suit: String) -> Card {
-        Card { rank, suit }
+        Card {
+            rank,
+            suit,
+            playable: true,
+        }
+    }
+
+    pub fn is_playable(&self) -> bool {
+        self.playable
+    }
+
+    pub fn set_not_playable(&mut self) {
+        self.playable = false;
+    }
+
+    pub fn set_playable(&mut self) {
+        self.playable = true;
+    }
+
+    fn true_default() -> bool {
+        true
     }
 }
 
@@ -46,10 +68,10 @@ pub enum TurnPhaseEnum {
 pub struct Player {
     id: usize,
     score: usize,
-    order_index: usize,
+    pub order_index: usize,
     pub hand: Vec<CardOption>,
     melds: Vec<Vec<CardOption>>,
-    username: String,
+    pub username: String,
 }
 
 impl Player {
@@ -58,16 +80,16 @@ impl Player {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(tag = "move_type")]
 pub enum DrawPhaseMove {
     #[serde(rename = "draw_from_deck")]
-    DrawFromDeck,
+    DrawFromDeck(CardOption),
     #[serde(rename = "draw_from_discards")]
     DrawFromDiscards(CardOption),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(tag = "move_type")]
 pub enum PlayPhaseMove {
     #[serde(rename = "play_run")]
@@ -80,7 +102,7 @@ pub enum PlayPhaseMove {
 
 // Moves are stored in a vector to facilitate
 // serializing into json.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum GameMoves {
     #[serde(rename = "wait")]
     Wait,
@@ -88,6 +110,12 @@ pub enum GameMoves {
     Draw(Vec<DrawPhaseMove>),
     #[serde(rename = "play")]
     Play(Vec<PlayPhaseMove>),
+}
+
+impl GameMoves {
+    pub fn new_from_json_str(game_moves_json: &str) -> GameMoves {
+        serde_json::from_str::<GameMoves>(game_moves_json).unwrap()
+    }
 }
 
 #[cfg(test)]
@@ -98,11 +126,13 @@ mod gameplay_tests {
         assert_eq!(
             CardOption::Visible(Card {
                 suit: "diamonds".into(),
-                rank: 10
+                rank: 10,
+                playable: true,
             }),
             CardOption::Visible(Card {
                 suit: "diamonds".into(),
-                rank: 10
+                rank: 10,
+                playable: true,
             })
         );
     }

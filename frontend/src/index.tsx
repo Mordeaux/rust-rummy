@@ -7,6 +7,7 @@ import App from './App'
 import { AuthForm } from './auth'
 import { getCurrentUser, getGames, getGame } from './api'
 import { GameView } from './game'
+import wasmPromise from './rummy-wasm'
 
 const router = createBrowserRouter([
   {
@@ -14,9 +15,16 @@ const router = createBrowserRouter([
     element: <App />,
     loader: async () =>
       Promise.all([getCurrentUser(), getGames()])
-        .then(([user, games]) => {
-          return { user, games }
-        })
+        .then(([user, games]) =>
+          wasmPromise.then((wasm) => {
+            const newGames = games.map((game) =>
+              game.available_moves
+                ? game
+                : JSON.parse(wasm.getAvailableMoves(JSON.stringify(game)))
+            )
+            return { user, games: newGames }
+          })
+        )
         .catch(() => {
           return { user: {}, games: [] }
         }),
@@ -32,7 +40,14 @@ const router = createBrowserRouter([
   {
     path: '/games/:gameId',
     element: <GameView />,
-    loader: async ({ params: { gameId } }) => getGame(gameId),
+    loader: async ({ params: { gameId } }) =>
+      getGame(gameId).then((game) =>
+        wasmPromise.then((wasm) =>
+          game.available_moves
+            ? game
+            : JSON.parse(wasm.getAvailableMoves(JSON.stringify(game)))
+        )
+      ),
   },
 ])
 

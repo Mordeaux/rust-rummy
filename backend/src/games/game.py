@@ -1,6 +1,6 @@
 """Contains the Game model as well as UserGame pivot model."""
 import json
-from enum import Enum, unique, auto
+from enum import Enum, auto, unique
 
 from ..app import db
 
@@ -16,6 +16,7 @@ class UserGame(db.Model):
     """This table connects a user to a game. Because there is information
     relevant to this relationship, like a score, or the order index,
     a Model is used instead of the more typical Table object."""
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id"),
@@ -37,8 +38,8 @@ class UserGame(db.Model):
     # Users should be sorted into playing order by this index
     order_index = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False, default=0)
-    _hand = db.Column(db.String(512))
-    _melds = db.Column(db.String(512))
+    _hand = db.Column(db.String(5000))
+    _melds = db.Column(db.String(5000))
     date_created = db.Column(
         db.DateTime,
         default=db.func.current_timestamp(),
@@ -48,6 +49,12 @@ class UserGame(db.Model):
         default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp(),
     )
+
+    def update_from_dict(self, player):
+        """This function should take a game state from rust and update
+        the database appropriately."""
+        self.hand = player["hand"]
+        self.melds = player["melds"]
 
     @property
     def hand(self):
@@ -80,10 +87,10 @@ class Game(db.Model):
         back_populates="game",
         order_by="asc(UserGame.order_index)",
     )
-    name = db.Column(db.String(1024))
-    _deck = db.Column(db.String(512))
-    _discards = db.Column(db.String(512))
-    current_turn = db.Column(db.Integer, default=0)
+    name = db.Column(db.String(256))
+    _deck = db.Column(db.String(5000))
+    _discards = db.Column(db.String(5000))
+    current_turn = db.Column(db.Integer, default=1)
     turn_phase = db.Column(db.Enum(TurnPhaseEnum), default=TurnPhaseEnum.DRAW)
     date_created = db.Column(
         db.DateTime,
@@ -95,30 +102,38 @@ class Game(db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    def as_dict(self, current_user=None):
+    def to_dict(self, current_user=None):
         """For JSON convenience"""
-        def _cards_marked(card_list, hidden=False):
-            return [{"card_type": "visible", "card": card} if not hidden else {"card_type": "hidden"} for card in card_list]
-
         return {
             "id": self.id,
             "players": [
                 {
-                    **user_game.user.as_dict(),
+                    **user_game.user.to_dict(),
                     "score": user_game.score,
                     "order_index": user_game.order_index,
-                    "melds": [_cards_marked(meld) for meld in user_game.melds],
-                    "hand": _cards_marked(user_game.hand)
+                    "melds": user_game.melds,
+                    "hand": user_game.hand
                     if current_user and current_user.id == user_game.user_id
-                    else _cards_marked(user_game.hand, hidden=True),
+                    else [{"card_type": "hidden"} for card in user_game.hand],
                 }
                 for user_game in self.user_associations
             ],
             "current_turn": self.current_turn,
             "turn_phase": self.turn_phase.name,
-            "discards": _cards_marked(self.discards),
+            "discards": self.discards,
             "name": self.name,
         }
+
+    def update_from_dict(self, game_state):
+        """This function should take a game state from rust and update
+        the database appropriately."""
+        self.turn_phase = TurnPhaseEnum[game_state["turn_phase"]]
+        self.current_turn = game_state["current_turn"]
+        self.discards = game_state["discards"]
+        for player in game_state["players"]:
+            for user_association in self.user_associations:
+                if user_association.order_index == player["order_index"]:
+                    user_association.update_from_dict(player)
 
     def add_user(self, user):
         """Add a single User object to the game."""

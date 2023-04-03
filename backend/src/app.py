@@ -5,8 +5,8 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
+
 
 def create_app() -> Flask:
     from .auth import auth_blueprint
@@ -14,11 +14,11 @@ def create_app() -> Flask:
 
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "temporary key"
-    db_uri = 'postgresql+psycopg2://{}:{}@{}/{}'.format(
-        os.environ.get('PG_USER'),
-        os.environ.get('PG_PASSWORD'),
-        os.environ.get('PG_HOST'),
-        os.environ.get('PG_DBNAME'),
+    db_uri = "postgresql+psycopg2://{}:{}@{}/{}".format(
+        os.environ.get("PG_USER"),
+        os.environ.get("PG_PASSWORD"),
+        os.environ.get("PG_HOST"),
+        os.environ.get("PG_DBNAME"),
     )
     app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["CORS_SUPPORTS_CREDENTIALS"] = True

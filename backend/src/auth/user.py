@@ -28,7 +28,7 @@ class User(UserMixin, db.Model):
         onupdate=db.func.current_timestamp(),
     )
 
-    def as_dict(self):
+    def to_dict(self):
         return {
             "id": self.id,
             "username": self.username,

@@ -1,4 +1,4 @@
-import {GameState, User} from './apiTypes'
+import { GameState, User, DrawPhaseMove } from './apiTypes'
 
 const headers = { 'Content-Type': 'application/json' }
 
@@ -13,34 +13,38 @@ const settings = {
 }
 
 const getJson = <T>(response: Response): Promise<T> => {
-           if (!response.ok) {
-        throw new Error(response.statusText)
-      }
-      return response.json() as Promise<T>
-    }
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+  return response.json() as Promise<T>
+}
 
 export const get = <T>(path: string): Promise<T> => {
   return fetch(`${baseURL}${path}`, {
     ...settings,
     headers,
-  } as RequestInit)
-  .then(getJson<T>)
+  } as RequestInit).then(getJson<T>)
 }
 
 export const getCurrentUser = get.bind(undefined, '/auth/user')
 
 export const getGames = () => get<Array<GameState>>('/games/')
-export const getGame = (gameId: string = '') => get<GameState>(`/games/${gameId}`)
+export const getGame = (gameId: string = '') =>
+  get<GameState>(`/games/${gameId}`)
 
-export const postJson = <T>(path: string, data: Object) => {
-  return fetch(`${baseURL}${path}`, {
-    method: 'POST',
-    ...settings,
-    headers,
-    body: JSON.stringify(data),
-  } as RequestInit)
-  .then(getJson<T>)
-}
+const submitJson =
+  (method: 'PUT' | 'POST') =>
+  <T>(path: string, data: Object) => {
+    return fetch(`${baseURL}${path}`, {
+      method,
+      ...settings,
+      headers,
+      body: JSON.stringify(data),
+    } as RequestInit).then(getJson<T>)
+  }
+
+const postJson = submitJson('POST')
+const putJson = submitJson('PUT')
 
 export const login = (pathname: string, username: string, password: string) => {
   return postJson<User>(`/auth${pathname}`, { username, password })
@@ -48,4 +52,8 @@ export const login = (pathname: string, username: string, password: string) => {
 
 export const logout = get.bind(undefined, '/auth/logout')
 
-export const draw = (gameId: string = '') => get<GameState>(`/games/${gameId}/draw`)
+export const draw = (gameId: string = '') =>
+  get<GameState>(`/games/${gameId}/draw`)
+
+export const putMove = (gameId: string, gameMove: DrawPhaseMove) =>
+  putJson<GameState>(`/games/${gameId}`, gameMove)

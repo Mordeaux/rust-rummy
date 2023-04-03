@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { User, GameState } from '../apiTypes'
 
-const GameList = ({ user, games }: {user:User, games: GameState[]}) => {
+const GameList = ({ user, games }: { user: User; games: GameState[] }) => {
   const filterOutSelf = ({ id }: User) => id !== user.id
 
   return (

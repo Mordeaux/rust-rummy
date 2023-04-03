@@ -2,8 +2,8 @@ from flask import Blueprint, Response, jsonify, request
 from flask_login import current_user, login_required
 
 from ..app import db
-from .game import Game
 from .controller import GameController
+from .game import Game
 
 
 def create_games_blueprint():
@@ -27,29 +27,37 @@ def create_games_blueprint():
         db.session.add(new_game)
         db.session.commit()
 
-        return jsonify(new_game.as_dict(current_user))
+        return jsonify(new_game.to_dict(current_user))
 
     @games.route("/", methods=["GET"])
     @login_required
     def list_games() -> Response:
-        return jsonify([game.as_dict(current_user) for game in current_user.games])
+        return jsonify(
+            [game.to_dict(current_user) for game in current_user.games]
+        )
 
-    @games.route("/<int:game_id>/draw", methods=["GET"])
+    @games.route("/<int:game_id>", methods=["PUT"])
     @login_required
-    def draw(game_id: int) -> Response:
+    def move(game_id: int) -> Response:
         """"""
-        game_controller = GameController.get_controller_by_game_id(current_user, game_id)
-        game_controller.draw()
+        game_move = request.get_json()
+        game_controller = GameController.get_controller_by_game_id(
+            current_user, game_id
+        )
+        new_game_state = game_controller.move(game_move)
         db.session.add(game_controller.game)
-        db.session.add(game_controller.user_game)
         db.session.commit()
-        return jsonify(game_controller.game.as_dict(current_user))
+        return (
+            jsonify(new_game_state)
+            if new_game_state
+            else jsonify({"error": "invalid move"})
+        )
 
     @games.route("/<int:game_id>", methods=["GET"])
     @login_required
     def get_game_by_id(game_id: int) -> Response:
         game = GameController.get_game_by_id(current_user, game_id)
-        return jsonify(game.as_dict(current_user) if game else {})
+        return jsonify(game.to_dict(current_user) if game else {})
 
     @games.route("/<int:game_id>", methods=["PUT"])
     @login_required
@@ -58,6 +66,6 @@ def create_games_blueprint():
         game.users.append(current_user)
         db.session.add(game)
         db.session.commit()
-        return jsonify(game.as_dict(current_user))
+        return jsonify(game.to_dict(current_user))
 
     return games

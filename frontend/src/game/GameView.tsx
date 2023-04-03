@@ -1,10 +1,11 @@
-import { useLoaderData, useParams } from 'react-router-dom'
-import { draw as apiDraw } from '../api'
-import wasmPromise from '../rummy-wasm'
-import { Card, Player, GameState } from '../apiTypes'
+import { useParams } from 'react-router-dom'
+import { GameStateContext } from './index'
+import { putMove } from '../api'
+import { Card, Player } from '../apiTypes'
 
-const Hand = ({ hand, user = false }: {hand: Card[], user?: Boolean}) => {
-  const displayCard = ({ card }: Card) => (card ? `${card.rank}${card.suit}` : 'xx')
+const Hand = ({ hand, user = false }: { hand: Card[]; user?: Boolean }) => {
+  const displayCard = ({ card }: Card) =>
+    card ? `${card.rank}${card.suit}` : 'xx'
   return (
     <div className="hand">
       {hand.map((card, index) => (
@@ -14,7 +15,13 @@ const Hand = ({ hand, user = false }: {hand: Card[], user?: Boolean}) => {
   )
 }
 
-const PlayerView = ({ player: { username, score, hand = [] }, isTurn }: {player: Player, isTurn:Boolean}) => {
+const PlayerView = ({
+  player: { username, score, hand = [] },
+  isTurn,
+}: {
+  player: Player
+  isTurn: Boolean
+}) => {
   return (
     <div
       className="player-view"
@@ -26,54 +33,64 @@ const PlayerView = ({ player: { username, score, hand = [] }, isTurn }: {player:
   )
 }
 
-const Deck = ({ discards = [] }: {discards: Card[]}) => {
-  const { gameId } = useParams()
-  const data = useLoaderData()
-  wasmPromise.then((wasm) =>
-    console.log(wasm.getAvailableMoves(JSON.stringify(data)))
-  )
-  const draw = () => {
-    apiDraw(gameId).then(console.log)
-  }
+const DiscardCard = ({ card }: Card) => <>{`${card.rank}${card.suit}`}</>
 
-  return (
-    <div className="deck">
-      <h3>
-        {discards.map(({card}: Card) => `${card.rank}${card.suit}`)}{' '}
-        <span onClick={draw.bind(undefined)}>The Deck</span>
-      </h3>
-    </div>
-  )
-}
+const GameView = () => (
+  <div className="game-view">
+    <GameStateContext.Consumer>
+      {({ gameState, setGameState }) => {
+        if (gameState) {
+          const {
+            id,
+            name: gameName,
+            players,
+            discards,
+            current_turn: currentTurn,
+          } = gameState
+          const opponent = players.find(({ id }) => id !== 1) as Player
+          const player = players.find(({ id }) => id === 1) as Player
+          const drawFromDeck = () =>
+            putMove(`${id}`, {
+              move_type: 'draw_from_deck',
+              card_type: 'hidden',
+            }).then(setGameState)
+          const drawFromDiscards = ({ card }: Card) =>
+            putMove(`${id}`, {
+              move_type: 'draw_from_discards',
+              card_type: 'visible',
+              card,
+            }).then(setGameState)
 
-const GameView = () => {
-  const {
-    name: gameName,
-    players,
-    discards,
-    current_turn: currentTurn,
-  } = useLoaderData() as GameState
-  const opponent = players.find(({ id }) => id !== 1) as Player
-  const player = players.find(({ id }) => id === 1) as Player
-  players.sort((player) => player.order_index)
-
-  return (
-    <div className="game-view">
-      <h1>{gameName}</h1>
-      <div className="game-board">
-        <PlayerView
-          player={opponent}
-          isTurn={opponent === players[currentTurn]}
-        />
-        <Deck discards={discards} />
-        <PlayerView
-          player={player}
-          isTurn={player === players[currentTurn]}
-        />
-        <h2>DISCARD</h2>
-      </div>
-    </div>
-  )
-}
+          return (
+            <>
+              <h1>{gameName}</h1>
+              <div className="game-board">
+                <PlayerView
+                  player={opponent}
+                  isTurn={opponent.order_index === currentTurn}
+                />
+                <div className="deck">
+                  <h3>
+                    {discards.map((card: Card) => (
+                      <div onClick={() => drawFromDiscards(card)}>
+                        <DiscardCard {...card} />
+                      </div>
+                    ))}{' '}
+                    <span onClick={drawFromDeck}>The Deck</span>
+                  </h3>
+                </div>
+                <PlayerView
+                  player={player}
+                  isTurn={player.order_index === currentTurn}
+                />
+                <h2>DISCARD</h2>
+              </div>
+            </>
+          )
+        }
+      }}
+    </GameStateContext.Consumer>
+  </div>
+)
 
 export default GameView

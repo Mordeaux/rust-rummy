@@ -14,10 +14,7 @@ const Unauthenticated = () => {
 }
 
 const LandingPage = () => {
-  const {
-    user,
-    games,
-  } = useLoaderData() as { user: User, games: GameState[]}
+  const { user, games } = useLoaderData() as { user: User; games: GameState[] }
   return (
     <>
       <h1>Hello {user.username}</h1>
@@ -30,7 +27,7 @@ const LandingPage = () => {
 const App = () => {
   const {
     user: { username },
-  } = useLoaderData() as { user: User, games: GameState[]}
+  } = useLoaderData() as { user: User; games: GameState[] }
   return (
     <div className="rummy-app">
       <Container>
