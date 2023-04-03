@@ -59,7 +59,7 @@ def create_games_blueprint():
         game = GameController.get_game_by_id(current_user, game_id)
         return jsonify(game.to_dict(current_user) if game else {})
 
-    @games.route("/<int:game_id>", methods=["PUT"])
+    @games.route("/<int:game_id>/join", methods=["PUT"])
     @login_required
     def join_game(game_id: int) -> Response:
         game = Game.query.get(game_id)
